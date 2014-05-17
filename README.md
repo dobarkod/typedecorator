@@ -16,6 +16,8 @@ Example:
         data[key] = val
         return data
 
+Works on Python 2.5+ and Python 3.2+.
+
 ## Quickstart
 
 To start using it, just install the package using pip:

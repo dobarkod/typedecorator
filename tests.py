@@ -16,8 +16,7 @@ class TestTypeSignatures(TestCase):
         # should not raise anything
         foo(1)
 
-        with self.assertRaises(TypeError):
-            foo('a')
+        self.assertRaises(TypeError, lambda: foo('a'))
 
     def test_params_custom_type(self):
         class MyType(object):
@@ -30,8 +29,7 @@ class TestTypeSignatures(TestCase):
         # should not raise anything
         foo(MyType())
 
-        with self.assertRaises(TypeError):
-            foo(1)
+        self.assertRaises(TypeError, lambda: foo(1))
 
     def test_params_list(self):
         @params(a=[int])
@@ -42,14 +40,9 @@ class TestTypeSignatures(TestCase):
         foo([])
         foo([1, 2, 3])
 
-        with self.assertRaises(TypeError):
-            foo(1)
-
-        with self.assertRaises(TypeError):
-            foo(['a'])
-
-        with self.assertRaises(TypeError):
-            foo([1, 2, 'a', 3])
+        self.assertRaises(TypeError, lambda: foo(1))
+        self.assertRaises(TypeError, lambda: foo(['a']))
+        self.assertRaises(TypeError, lambda: foo([1, 2, 'a', 3]))
 
     def test_params_dict(self):
         @params(a={str: int})
@@ -60,32 +53,29 @@ class TestTypeSignatures(TestCase):
         foo({})
         foo({'a': 1, 'b': 2})
 
-        with self.assertRaises(TypeError):
-            foo(set())
-
-        with self.assertRaises(TypeError):
-            foo({'a': 'b'})
-
-        with self.assertRaises(TypeError):
-            foo({1: 1})
+        self.assertRaises(TypeError, lambda: foo(set()))
+        self.assertRaises(TypeError, lambda: foo({'a': 'b'}))
+        self.assertRaises(TypeError, lambda: foo({1: 1}))
 
     def test_params_set(self):
-        @params(a={int})
+        @params(a=set([int]))  # 2.6 compat
         def foo(a):
             pass
 
         # should not raise anything
         foo(set())
-        foo({1, 2, 3})
+        foo(set([1, 2, 3]))  # 2.6 compat
 
-        with self.assertRaises(TypeError):
-            foo({})  # that's a dict
-
-        with self.assertRaises(TypeError):
-            foo({1, 2, 'a'})
+        self.assertRaises(TypeError, lambda: foo({}))
+        self.assertRaises(TypeError, lambda: foo(set([1, 2, 'a'])))
 
     def test_params_xrange(self):
-        @params(a=xrange)
+        try:
+            range_type = xrange
+        except NameError:
+            range_type = range
+
+        @params(a=range_type)
         def foo(a):
             pass
 
@@ -104,24 +94,16 @@ class TestTypeSignatures(TestCase):
         foo((1, True))
         foo((0, False))
 
-        with self.assertRaises(TypeError):
-            foo(1, True, None)
-
-        with self.assertRaises(TypeError):
-            foo(True, 1)
+        self.assertRaises(TypeError, lambda: foo(1, True, None))
+        self.assertRaises(TypeError, lambda: foo(True, 1))
 
     def test_invalid_signatures_throw_error(self):
         def foo(a):
             pass
 
-        with self.assertRaises(TypeError):
-            params(a=int, b=int)(foo)  # foo doesn't take b
-
-        with self.assertRaises(TypeError):
-            params(a=[int, int])  # invalid list sig
-
-        with self.assertRaises(TypeError):
-            params(a=None)  # needs type(None) or 'void' instead
+        self.assertRaises(TypeError, lambda: params(a=int, b=int)(foo))
+        self.assertRaises(TypeError, lambda: params(a=[int, int]))
+        self.assertRaises(TypeError, lambda: params(a=None))
 
 
 class TestParams(TestCase):
@@ -139,11 +121,8 @@ class TestParams(TestCase):
         foo(0, '')
         foo(b='foo', a=2)
 
-        with self.assertRaises(TypeError):
-            foo(1, 1)
-
-        with self.assertRaises(TypeError):
-            foo(b=0, a='x')
+        self.assertRaises(TypeError, lambda: foo(1, 1))
+        self.assertRaises(TypeError, lambda: foo(b=0, a='x'))
 
     def test_invalid_signatures_throw_error(self):
         def foo(a):
@@ -152,11 +131,8 @@ class TestParams(TestCase):
         # sanity check that params() works
         params(a=int)(foo)
 
-        with self.assertRaises(TypeError):
-            params()(foo)
-
-        with self.assertRaises(TypeError):
-            params(int)(foo)  # arg not named
+        self.assertRaises(TypeError, lambda: params()(foo))
+        self.assertRaises(TypeError, lambda: params(int)(foo))
 
 
 class TestReturns(TestCase):
@@ -172,11 +148,8 @@ class TestReturns(TestCase):
         # should not raise anything
         foo(1)
 
-        with self.assertRaises(TypeError):
-            foo('a')
-
-        with self.assertRaises(TypeError):
-            foo(None)
+        self.assertRaises(TypeError, lambda: foo('a'))
+        self.assertRaises(TypeError, lambda: foo(None))
 
     def test_void(self):
         @void
@@ -186,8 +159,7 @@ class TestReturns(TestCase):
         # shoud not raise anything
         foo(None)
 
-        with self.assertRaises(TypeError):
-            foo(1)
+        self.assertRaises(TypeError, lambda: foo(1))
 
 
 class TestSetup(TestCase):
@@ -202,8 +174,7 @@ class TestSetup(TestCase):
         def foo():
             pass
 
-        with self.assertRaises(MyError):
-            foo()
+        self.assertRaises(MyError, lambda: foo())
 
     def test_disabled_exception(self):
         setup_typecheck()
@@ -212,8 +183,7 @@ class TestSetup(TestCase):
         def foo():
             pass
 
-        with self.assertRaises(TypeError):
-            foo()
+        self.assertRaises(TypeError, lambda: foo())
 
         setup_typecheck(exception=None)
 

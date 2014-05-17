@@ -53,7 +53,7 @@ with string keys, and anything as values.
 with elements of type matching the set element. For example, `{str}` matches
 any set consisting solely of strings.
 
-6. `xrange`, matching any iterator.
+6. `xrange` (or `range` in Python 3), matching any iterator.
 
 These rules are recursive, so it is possible to construct arbitrarily
 complex type signatures. Here are a few examples:
@@ -82,6 +82,11 @@ try:
     from mock import Mock
 except:
     Mock = None
+
+try:
+    range_type = xrange
+except NameError:
+    range_type = range
 
 _decorator_enabled = True  # whether the decorators should install the wrappers
 _enabled = False  # whether the wrappers should do anything at runtime
@@ -195,7 +200,7 @@ def _check_constraint_validity(t):
 def _verify_type_constraint(v, t):
     if Mock and isinstance(v, Mock):
         return True
-    if t is xrange and hasattr(v, '__iter__') and callable(v.__iter__):
+    if t is range_type and hasattr(v, '__iter__') and callable(v.__iter__):
         return True
     elif isinstance(t, type):
         return isinstance(v, t)
@@ -234,7 +239,10 @@ def returns(return_type):
             return fn
 
         if not hasattr(fn, '__def__site__'):
-            fc = fn.func_code
+            if hasattr(fn, '__code__'):
+                fc = fn.__code__
+            else:
+                fc = fn.func_code
             fn.__def_site__ = (fc.co_filename, fc.co_firstlineno, fn.__name__,
                 '')
 
@@ -301,12 +309,16 @@ def params(**types):
         if hasattr(fn, '__return_type__'):
             raise TypeError('You must use @returns before @params')
 
-        if not hasattr(fn, '__def__site__'):
+        if hasattr(fn, '__code__'):
+            fc = fn.__code__
+        else:
             fc = fn.func_code
+
+        if not hasattr(fn, '__def__site__'):
             fn.__def_site__ = (fc.co_filename, fc.co_firstlineno, fn.__name__,
                 '')
 
-        arg_names = fn.func_code.co_varnames[:fn.func_code.co_argcount]
+        arg_names = fc.co_varnames[:fc.co_argcount]
         if any(arg not in arg_names for arg in types.keys()) \
                 or any(arg not in types for arg in arg_names):
             raise TypeError("Annotation doesn't match function signature")
