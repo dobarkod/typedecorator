@@ -80,7 +80,7 @@ class TestTypeSignatures(TestCase):
             pass
 
         # should not raise anything
-        foo(xrange(10))
+        foo(range_type(10))
         foo(i for i in [1, 2])
         foo(iter([1, 2]))
         foo([])  # works because list supports the iterator protocol
