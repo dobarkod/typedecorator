@@ -4,6 +4,5 @@ python:
 - '3.2'
 - '3.3'
 - 'pypy'
-install: pip install . --use-mirrors mock
 script:
 - python setup.py test
