@@ -71,7 +71,7 @@ as `dict` and `{object}` is the same as  `set`.
 
 """
 
-__version__ = '0.0.1'
+__version__ = '0.0.2'
 
 __all__ = ['returns', 'void', 'params', 'setup_typecheck']
 
