@@ -1,4 +1,8 @@
-A decorator-based implementation of type checks.
+# Typedecorator
+
+A decorator-based implementation of type checks for Python.
+
+[![Build Status](https://travis-ci.org/dobarkod/typedecorator.svg?branch=master)](https://travis-ci.org/dobarkod/typedecorator?branch=master)
 
 Provides `@params`, `@returns` and `@void` decorators for describing
 the type of the function arguments and return values. If the types mismatch,
@@ -36,7 +40,7 @@ You can now start using it in your code
     add('one', 2)  # will raise a TypeError
 
 You ony need to call `setup_typecheck` once to enable it and optionally
-# configure exceptions thrown and logging level. You can use it multiple
+configure exceptions thrown and logging level. You can use it multiple
 time to change, disable, or re-enable typechecks at runtime. See the
 Setup section for more information.
 
