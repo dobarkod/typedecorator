@@ -1,0 +1,225 @@
+from unittest import TestCase, main
+
+from typedecorator import params, returns, void, setup_typecheck
+
+
+class TestTypeSignatures(TestCase):
+
+    def setUp(self):
+        setup_typecheck()
+
+    def test_params_builtin_type(self):
+        @params(a=int)
+        def foo(a):
+            pass
+
+        # should not raise anything
+        foo(1)
+
+        with self.assertRaises(TypeError):
+            foo('a')
+
+    def test_params_custom_type(self):
+        class MyType(object):
+            pass
+
+        @params(a=MyType)
+        def foo(a):
+            pass
+
+        # should not raise anything
+        foo(MyType())
+
+        with self.assertRaises(TypeError):
+            foo(1)
+
+    def test_params_list(self):
+        @params(a=[int])
+        def foo(a):
+            pass
+
+        # should not raise anything
+        foo([])
+        foo([1, 2, 3])
+
+        with self.assertRaises(TypeError):
+            foo(1)
+
+        with self.assertRaises(TypeError):
+            foo(['a'])
+
+        with self.assertRaises(TypeError):
+            foo([1, 2, 'a', 3])
+
+    def test_params_dict(self):
+        @params(a={str: int})
+        def foo(a):
+            pass
+
+        # should not raise anything
+        foo({})
+        foo({'a': 1, 'b': 2})
+
+        with self.assertRaises(TypeError):
+            foo(set())
+
+        with self.assertRaises(TypeError):
+            foo({'a': 'b'})
+
+        with self.assertRaises(TypeError):
+            foo({1: 1})
+
+    def test_params_set(self):
+        @params(a={int})
+        def foo(a):
+            pass
+
+        # should not raise anything
+        foo(set())
+        foo({1, 2, 3})
+
+        with self.assertRaises(TypeError):
+            foo({})  # that's a dict
+
+        with self.assertRaises(TypeError):
+            foo({1, 2, 'a'})
+
+    def test_params_xrange(self):
+        @params(a=xrange)
+        def foo(a):
+            pass
+
+        # should not raise anything
+        foo(xrange(10))
+        foo(i for i in [1, 2])
+        foo(iter([1, 2]))
+        foo([])  # works because list supports the iterator protocol
+
+    def test_params_tuple(self):
+        @params(a=(int, bool))
+        def foo(a):
+            pass
+
+        # should not raise anything
+        foo((1, True))
+        foo((0, False))
+
+        with self.assertRaises(TypeError):
+            foo(1, True, None)
+
+        with self.assertRaises(TypeError):
+            foo(True, 1)
+
+    def test_invalid_signatures_throw_error(self):
+        def foo(a):
+            pass
+
+        with self.assertRaises(TypeError):
+            params(a=int, b=int)(foo)  # foo doesn't take b
+
+        with self.assertRaises(TypeError):
+            params(a=[int, int])  # invalid list sig
+
+        with self.assertRaises(TypeError):
+            params(a=None)  # needs type(None) or 'void' instead
+
+
+class TestParams(TestCase):
+
+    def setUp(self):
+        setup_typecheck()
+
+    def test_params_args_kwargs(self):
+        @params(a=int, b=str)
+        def foo(a, b):
+            pass
+
+        # should not raise anything
+        foo(1, 'test')
+        foo(0, '')
+        foo(b='foo', a=2)
+
+        with self.assertRaises(TypeError):
+            foo(1, 1)
+
+        with self.assertRaises(TypeError):
+            foo(b=0, a='x')
+
+    def test_invalid_signatures_throw_error(self):
+        def foo(a):
+            pass
+
+        # sanity check that params() works
+        params(a=int)(foo)
+
+        with self.assertRaises(TypeError):
+            params()(foo)
+
+        with self.assertRaises(TypeError):
+            params(int)(foo)  # arg not named
+
+
+class TestReturns(TestCase):
+
+    def setUp(self):
+        setup_typecheck()
+
+    def test_returns(self):
+        @returns(int)
+        def foo(x):
+            return x
+
+        # should not raise anything
+        foo(1)
+
+        with self.assertRaises(TypeError):
+            foo('a')
+
+        with self.assertRaises(TypeError):
+            foo(None)
+
+    def test_void(self):
+        @void
+        def foo(x):
+            return x
+
+        # shoud not raise anything
+        foo(None)
+
+        with self.assertRaises(TypeError):
+            foo(1)
+
+
+class TestSetup(TestCase):
+
+    def test_custom_exceptions(self):
+        class MyError(Exception):
+            pass
+
+        setup_typecheck(exception=MyError)
+
+        @returns(int)
+        def foo():
+            pass
+
+        with self.assertRaises(MyError):
+            foo()
+
+    def test_disabled_exception(self):
+        setup_typecheck()
+
+        @returns(int)
+        def foo():
+            pass
+
+        with self.assertRaises(TypeError):
+            foo()
+
+        setup_typecheck(exception=None)
+
+        # should not raise anything any more
+        foo()
+
+
+if __name__ == '__main__':
+    main()
