@@ -173,7 +173,7 @@ def _constraint_to_string(t):
     elif isinstance(t, tuple):
         return '(%s)' % ', '.join(_constraint_to_string(x) for x in t)
     elif isinstance(t, dict) and len(t) == 1:
-        k, v = t.items()[0]
+        k, v = list(t.items())[0]
         return '{%s:%s}' % (_constraint_to_string(k), _constraint_to_string(v))
     elif isinstance(t, set) and len(t) == 1:
         return '{%s}' % _constraint_to_string(list(t)[0])
@@ -189,7 +189,7 @@ def _check_constraint_validity(t):
     elif isinstance(t, tuple):
         return all(_check_constraint_validity(x) for x in t)
     elif isinstance(t, dict) and len(t) == 1:
-        k, v = t.items()[0]
+        k, v = list(t.items())[0]
         return _check_constraint_validity(k) and _check_constraint_validity(v)
     elif isinstance(t, set) and len(t) == 1:
         return _check_constraint_validity(list(t)[0])
@@ -209,9 +209,9 @@ def _verify_type_constraint(v, t):
     elif isinstance(t, tuple) and isinstance(v, tuple) and len(t) == len(v):
         return all(_verify_type_constraint(vx, tx) for vx, tx in zip(v, t))
     elif isinstance(t, dict) and isinstance(v, dict):
-        tk, tv = t.items()[0]
+        tk, tv = list(t.items())[0]
         return all(_verify_type_constraint(vk, tk) and
-            _verify_type_constraint(vv, tv) for vk, vv in v.iteritems())
+            _verify_type_constraint(vv, tv) for vk, vv in v.items())
     elif isinstance(t, set) and isinstance(v, set):
         tx = list(t)[0]
         return all(_verify_type_constraint(vx, tx) for vx in v)
