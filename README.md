@@ -20,7 +20,7 @@ Works on Python 2.5+ and Python 3.2+.
 
 ## Quickstart
 
-To start using it, just install the package using pip:
+Install the package using pip:
 
     pip install typedecorator
 
@@ -48,9 +48,9 @@ Setup section for more information.
 
 ## Type Signatures
 
-Both @params and @returns take type signatures that can describe both simple
-and complex types. The @void decorator is a shorthand for @returns(type(None)),
-describing a function returning nothing.
+Both `@params` and `@returns` take type signatures that can describe both
+simple and complex types. The `@void` decorator is a shorthand for
+`@returns(type(None))`, describing a function returning nothing.
 
 A type signature can be:
 
@@ -77,7 +77,8 @@ with string keys, and anything as values.
 with elements of type matching the set element. For example, `{str}` matches
 any set consisting solely of strings.
 
-6. `xrange`, matching any iterator.
+6. `xrange` (or `range` in Python 3), matching any iterable (including
+   generators and lists).
 
 These rules are recursive, so it is possible to construct arbitrarily
 complex type signatures. Here are a few examples:
@@ -93,6 +94,7 @@ complex type signatures. Here are a few examples:
 Note that `[object]` is the same as `list`, `{object:object}` is the same
 as `dict` and `{object}` is the same as  `set`.
 
+
 ## Setup
 
 The function `setup_typecheck` takes care of enabling, disabling, and
@@ -100,11 +102,11 @@ configuring type checks at "compile" (parse) time and at runtime.
 
 The function takes three optional arguments:
 
-* `enabled` - whether to enable checks of any kind (default: True)
+* `enabled` - whether to enable checks of any kind (default: `True`)
 * `exception` - which exception to raise if type check fails (default:
-  TypeError), or None to disable raising the exception
+  `TypeError`), or `None` to disable raising the exception
 * `loglevel` - the log level at which to log the type error (see the
-  standard `logging` module for possible levels), or None to disable type
+  standard `logging` module for possible levels), or `None` to disable type
   error logging.
 
 By default, the type checking system is inactive unless activated through
