@@ -264,6 +264,7 @@ def returns(return_type):
 
         wrapper.__name__ = fn.__name__
         wrapper.__doc__ = fn.__doc__
+        wrapper.__module__ = fn.__module__
         wrapper.__return_type__ = return_type
         return wrapper
     return deco
@@ -343,5 +344,6 @@ def params(**types):
 
         wrapper.__name__ = fn.__name__
         wrapper.__doc__ = fn.__doc__
+        wrapper.__module__ = fn.__module__
         return wrapper
     return deco

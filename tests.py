@@ -1,3 +1,4 @@
+import pickle
 from unittest import TestCase, main
 
 from typedecorator import params, returns, void, setup_typecheck
@@ -189,6 +190,21 @@ class TestSetup(TestCase):
 
         # should not raise anything any more
         foo()
+
+
+@returns(int)
+@params(a=int, b=int)
+def pickle_test_function(a, b):
+    """Used for TestWrapping.test_wrapped_function_remains_pickleable"""
+    return a + b
+
+
+class TestWrapping(TestCase):
+
+    def test_wrapped_function_remains_pickleable(self):
+        dump = pickle.dumps(pickle_test_function)
+        fn = pickle.loads(dump)
+        self.assertEqual(fn(1, 1), 2)
 
 
 if __name__ == '__main__':
