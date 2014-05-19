@@ -1,7 +1,7 @@
 import pickle
 from unittest import TestCase, main
 
-from typedecorator import params, returns, void, setup_typecheck
+from typedecorator import params, returns, void, setup_typecheck, Union, Nullable
 
 
 class TestTypeSignatures(TestCase):
@@ -97,6 +97,29 @@ class TestTypeSignatures(TestCase):
 
         self.assertRaises(TypeError, lambda: foo(1, True, None))
         self.assertRaises(TypeError, lambda: foo(True, 1))
+
+    def test_params_union_types(self):
+        @params(a=Union(int, str))
+        def foo(a):
+            pass
+
+        # should not raise anything
+        foo(42)
+        foo('hello')
+
+        self.assertRaises(TypeError, lambda: foo(3.14))
+        self.assertRaises(TypeError, lambda: foo(None))
+
+    def test_params_nullable_type(self):
+        @params(a=Nullable(int))
+        def foo(a=None):
+            pass
+
+        # should not raise anything
+        foo(0)
+        foo(None)
+
+        self.assertRaises(TypeError, lambda: foo('a'))
 
     def test_invalid_signatures_throw_error(self):
         def foo(a):

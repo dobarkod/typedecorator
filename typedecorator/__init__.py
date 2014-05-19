@@ -73,7 +73,8 @@ as `dict` and `{object}` is the same as  `set`.
 
 __version__ = '0.0.2'
 
-__all__ = ['returns', 'void', 'params', 'setup_typecheck']
+__all__ = ['returns', 'void', 'params', 'setup_typecheck', 'Union',
+    'Nullable']
 
 import logging
 import traceback
@@ -165,6 +166,20 @@ def _type_error(msg, stack=None):
         raise _exception(msg)
 
 
+class Union(object):
+    __slots__ = ('types',)
+
+    def __init__(self, *types):
+        self.types = types
+
+    def __iter__(self):
+        return iter(self.types)
+
+
+def Nullable(t):
+    return Union(t, type(None))
+
+
 def _constraint_to_string(t):
     if isinstance(t, type):
         return t.__name__
@@ -177,6 +192,8 @@ def _constraint_to_string(t):
         return '{%s:%s}' % (_constraint_to_string(k), _constraint_to_string(v))
     elif isinstance(t, set) and len(t) == 1:
         return '{%s}' % _constraint_to_string(list(t)[0])
+    elif isinstance(t, Union):
+        return 'U(%s)' % (', '.join(_constraint_to_string(x) for x in t))
     else:
         raise TypeError('Invalid type signature')
 
@@ -193,6 +210,8 @@ def _check_constraint_validity(t):
         return _check_constraint_validity(k) and _check_constraint_validity(v)
     elif isinstance(t, set) and len(t) == 1:
         return _check_constraint_validity(list(t)[0])
+    elif isinstance(t, Union):
+        return all(_check_constraint_validity(x) for x in t)
     else:
         raise TypeError('Invalid type signature')
 
@@ -215,6 +234,8 @@ def _verify_type_constraint(v, t):
     elif isinstance(t, set) and isinstance(v, set):
         tx = list(t)[0]
         return all(_verify_type_constraint(vx, tx) for vx in v)
+    elif isinstance(t, Union):
+        return any(_verify_type_constraint(v, tx) for tx in t)
     else:
         return False
 
