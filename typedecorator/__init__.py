@@ -55,6 +55,14 @@ any set consisting solely of strings.
 
 6. `xrange` (or `range` in Python 3), matching any iterator.
 
+7. An instance of `typecheck.Union`, requiring that the value be of any of
+the types listed when creating the `Union` instance. For example,
+`Union(int, str, type(None))` matches integers, strings and `None`.
+
+8. An instance of `typecheck.Nullable`, requiring that the value is either
+of the type specified when creating the `Nullable` instance, or None. For
+example, `Nullable(str)` matches strings and `None`.
+
 These rules are recursive, so it is possible to construct arbitrarily
 complex type signatures. Here are a few examples:
 
