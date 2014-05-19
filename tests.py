@@ -121,6 +121,19 @@ class TestTypeSignatures(TestCase):
 
         self.assertRaises(TypeError, lambda: foo('a'))
 
+    def test_params_variadic(self):
+        @params(a=int, b=str)
+        def foo(a, b=None, *args, **kwargs):
+            pass
+
+        foo(0)
+        foo(0, 'b', 1, 2)
+        foo(0, c='a')
+
+        self.assertRaises(TypeError, lambda: foo('a'))
+        self.assertRaises(TypeError, lambda: foo(0, 1, 2, 3))
+        self.assertRaises(TypeError, lambda: foo(b=2, a=1))
+
     def test_invalid_signatures_throw_error(self):
         def foo(a):
             pass

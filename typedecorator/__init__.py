@@ -76,6 +76,7 @@ __version__ = '0.0.2'
 __all__ = ['returns', 'void', 'params', 'setup_typecheck', 'Union',
     'Nullable']
 
+import inspect
 import logging
 import traceback
 
@@ -340,7 +341,7 @@ def params(**types):
             fn.__def_site__ = (fc.co_filename, fc.co_firstlineno, fn.__name__,
                 '')
 
-        arg_names = fc.co_varnames[:fc.co_argcount]
+        arg_names, va_args, va_kwargs, _ = inspect.getargspec(fn)
         if any(arg not in arg_names for arg in types.keys()) \
                 or any(arg not in types for arg in arg_names):
             raise TypeError("Annotation doesn't match function signature")
@@ -355,9 +356,10 @@ def params(**types):
 
                 for k, v in kwargs.items():
                     if k not in types:
-                        _type_error("unknown keyword argument %s "
-                            "(positional specified as keyword?)" % k)
-                    if not _verify_type_constraint(v, types[k]):
+                        if not va_kwargs:
+                            _type_error("unknown keyword argument %s "
+                                "(positional specified as keyword?)" % k)
+                    elif not _verify_type_constraint(v, types[k]):
                         _type_error("keyword argument %s = %s "
                             "doesn't match signature %s" % (k, repr(v),
                                 _constraint_to_string(types[k])))
