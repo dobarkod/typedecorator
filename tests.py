@@ -228,6 +228,40 @@ class TestSetup(TestCase):
         foo()
 
 
+class TestMethodAnnotation(TestCase):
+
+    def test_class_instance_methods(self):
+
+        class Accumulator(object):
+            sum = 0
+
+            @void
+            @params(self=object, a=int)
+            def add(self, a):
+                self.sum = self.sum + a
+
+            @classmethod
+            @returns(int)
+            @params(cls=type, a=int, b=int)
+            def add2(cls, a, b):
+                return a + b
+
+            @property
+            @returns(int)
+            def total(self):
+                return self.sum
+
+        a = Accumulator()
+
+        # should not raise anything
+        Accumulator.add2(1, 2)
+        a.add(1)
+        self.assertEqual(a.total, 1)
+
+        self.assertRaises(TypeError, lambda: Accumulator.add2(1, 'a'))
+        self.assertRaises(TypeError, lambda: a.add(None))
+
+
 @returns(int)
 @params(a=int, b=int)
 def pickle_test_function(a, b):
