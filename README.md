@@ -99,6 +99,9 @@ complex type signatures. Here are a few examples:
 
 * `{xrange}` - set of iterators
 
+* `{str: Union(int, float)}` - dictionary mapping strings to values
+    that are either integers or floating point numbers
+
 Note that `[object]` is the same as `list`, `{object:object}` is the same
 as `dict` and `{object}` is the same as  `set`.
 
