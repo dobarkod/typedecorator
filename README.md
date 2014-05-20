@@ -141,6 +141,44 @@ specifying whether you want the type checks enabled:
 
 Note that in this case, the checks cannot be enabled at runtime.
 
+## Type checking methods
+
+When using `@params` with instance methods, you should specify `object` as
+the type of the `self` argument. This is required because when the decorator
+is executing, the class itself still isn't created so the type that `self`
+will have doesn't exist yet.
+
+There is no problem in using a catch-all `object` type though, since Python
+will enforce correct type for the instance upon method invocation anyways.
+
+When using `@params` on a class method, there is no problem since the class
+itself is instance of the `type` type.
+
+WHen combining type checking decorators with `@classmethod`, `@staticmethod`
+or `@property` decorators, the type checking decorators must run first (ie.
+be "closer" to the body of the function being defined).
+
+Here's an example:
+
+    class Accumulator(object):
+        sum = 0
+
+        @void
+        @params(self=object, a=int)
+        def add(self, a):
+            self.sum = self.sum + a
+
+        @classmethod
+        @returns(int)
+        @params(cls=type, a=int, b=int)
+        def add2(cls, a, b):
+            return a + b
+
+        @property
+        @returns(int)
+        def total(self):
+            return self.sum
+
 ## Mocking
 
 Since the type signatures compare the actual value types, the parameters
