@@ -268,7 +268,7 @@ def returns(return_type):
         if not _decorator_enabled:
             return fn
 
-        if not hasattr(fn, '__def__site__'):
+        if not hasattr(fn, '__def_site__'):
             if hasattr(fn, '__code__'):
                 fc = fn.__code__
             else:
@@ -345,7 +345,7 @@ def params(**types):
         else:
             fc = fn.func_code
 
-        if not hasattr(fn, '__def__site__'):
+        if not hasattr(fn, '__def_site__'):
             fn.__def_site__ = (fc.co_filename, fc.co_firstlineno, fn.__name__,
                 '')
 
