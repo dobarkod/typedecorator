@@ -284,7 +284,7 @@ class TestWrapping(TestCase):
 
 def main():
     test_mods = [__name__]
-    if version_info.major == 3:
+    if version_info[0] == 3:
         test_mods.append('tests3')
     suite = TestLoader().loadTestsFromNames(test_mods)
 
