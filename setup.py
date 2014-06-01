@@ -42,7 +42,7 @@ class TestCommand(BaseCommand):
     description = "run self-tests"
 
     def run(self):
-        ret = os.system('python tests.py')
+        ret = os.system('%s tests.py' % sys.executable)
         if ret != 0:
             sys.exit(-1)
 

@@ -190,6 +190,21 @@ can't be mocked. To minimize the problem, `Mock` type from `mock` library
 library) is special cased - an instance of `Mock` (or any of its subclasses,
 such as `MagicMock`) will pass any check.
 
+## Python 3 annotations
+
+If used with Python 3, the parameters and return type signatures can also
+be specified using the Python 3 function annotation syntax. To enable these,
+use the `@typed` decorator on an annotated function. For example:
+
+    @typed
+    def add_to_data(data: {str: int}, key: str, val: int) -> {str: int}:
+        data[key] = val
+        return data
+
+The behaviour is identical as if `@params` and `@returns` were used, the only
+difference is in nicer syntax.
+
+
 ## License
 
 Copyright (C) 2014. Senko Rasic <senko.rasic@goodcode.io>

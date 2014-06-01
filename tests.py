@@ -1,7 +1,9 @@
 import pickle
-from unittest import TestCase, main
+from sys import version_info
+from unittest import TestCase, TestLoader, TextTestRunner
 
-from typedecorator import params, returns, void, setup_typecheck, Union, Nullable
+from typedecorator import (params, returns, void, setup_typecheck, Union,
+    Nullable)
 
 
 class TestTypeSignatures(TestCase):
@@ -230,6 +232,9 @@ class TestSetup(TestCase):
 
 class TestMethodAnnotation(TestCase):
 
+    def setUp(self):
+        setup_typecheck()
+
     def test_class_instance_methods(self):
 
         class Accumulator(object):
@@ -275,6 +280,15 @@ class TestWrapping(TestCase):
         dump = pickle.dumps(pickle_test_function)
         fn = pickle.loads(dump)
         self.assertEqual(fn(1, 1), 2)
+
+
+def main():
+    test_mods = [__name__]
+    if version_info.major == 3:
+        test_mods.append('tests3')
+    suite = TestLoader().loadTestsFromNames(test_mods)
+
+    TextTestRunner().run(suite)
 
 
 if __name__ == '__main__':

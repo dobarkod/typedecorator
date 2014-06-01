@@ -82,7 +82,7 @@ as `dict` and `{object}` is the same as  `set`.
 __version__ = '0.0.2'
 
 __all__ = ['returns', 'void', 'params', 'setup_typecheck', 'Union',
-    'Nullable']
+    'Nullable', 'typed']
 
 import inspect
 import logging
@@ -348,8 +348,11 @@ def params(**types):
         if not hasattr(fn, '__def_site__'):
             fn.__def_site__ = (fc.co_filename, fc.co_firstlineno, fn.__name__,
                 '')
+        if hasattr(inspect, 'getfullargspec'):
+            arg_names, va_args, va_kwargs, _, _, _, _ = inspect.getfullargspec(fn)
+        else:
+            arg_names, va_args, va_kwargs, _ = inspect.getargspec(fn)
 
-        arg_names, va_args, va_kwargs, _ = inspect.getargspec(fn)
         if any(arg not in arg_names for arg in types.keys()) \
                 or any(arg not in types for arg in arg_names):
             raise TypeError("Annotation doesn't match function signature")
@@ -378,3 +381,33 @@ def params(**types):
         wrapper.__module__ = fn.__module__
         return wrapper
     return deco
+
+
+def typed(fn):
+    """Interpret Python3 function annotations as type signatures.
+
+    This decorator enables use of Python3 syntactic sugar for specifying
+    type signatures in a more readable way than using decorators.
+
+    Argument annotations are treated as arguments to @params. Return value
+    annotation is treated as argument to @returns. Either are optional, but
+    at least one should be given if this decorator is used.
+    """
+
+    if not hasattr(fn, '__annotations__'):
+        raise TypeError("Function not annotated with Python3 annotations")
+
+    return_type = fn.__annotations__.get('return')
+    param_types = fn.__annotations__.copy()
+
+    if return_type:
+        del param_types['return']
+
+    if param_types:
+        fn = params(**param_types)(fn)
+
+    if return_type:
+        fn = returns(return_type)(fn)
+
+    fn.__annotations__ = {}
+    return fn
