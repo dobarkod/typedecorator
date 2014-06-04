@@ -279,17 +279,18 @@ def returns(return_type):
         def wrapper(*args, **kwargs):
             retval = fn(*args, **kwargs)
             if _enabled:
-                if retval is None and return_type is not type(None):
-                    _type_error("non-void function didn't return a value",
-                        stack=fn.__def_site__)
-                elif retval is not None and return_type is type(None):
-                    _type_error("void function returned a value",
-                        stack=fn.__def_site__)
-                elif not _verify_type_constraint(retval, return_type):
-                    _type_error("function returned value %s not matching "
-                        "signature %s" % (repr(retval),
-                            _constraint_to_string(return_type)),
-                        stack=fn.__def_site__)
+                if not _verify_type_constraint(retval, return_type):
+                    if retval is None and return_type is not type(None):
+                        _type_error("non-void function didn't return a value",
+                            stack=fn.__def_site__)
+                    elif retval is not None and return_type is type(None):
+                        _type_error("void function returned a value",
+                            stack=fn.__def_site__)
+                    else:
+                        _type_error("function returned value %s not matching "
+                            "signature %s" % (repr(retval),
+                                _constraint_to_string(return_type)),
+                            stack=fn.__def_site__)
             return retval
 
         wrapper.__name__ = fn.__name__
