@@ -200,6 +200,17 @@ class TestReturns(TestCase):
 
         self.assertRaises(TypeError, lambda: foo(1))
 
+    def test_returns_nullable(self):
+        @returns(Nullable(int))
+        def foo(x):
+            return x
+
+        # should not raise anything
+        foo(1)
+        foo(None)
+
+        self.assertRaises(TypeError, lambda: foo('a'))
+
 
 class TestSetup(TestCase):
 
