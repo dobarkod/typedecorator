@@ -98,6 +98,11 @@ try:
 except NameError:
     range_type = range
 
+try:
+    string_type = basestring
+except NameError:
+    string_type = str
+
 _decorator_enabled = True  # whether the decorators should install the wrappers
 _enabled = False  # whether the wrappers should do anything at runtime
 _logger = logging.getLogger(__name__)
@@ -192,6 +197,8 @@ def Nullable(t):
 def _constraint_to_string(t):
     if isinstance(t, type):
         return t.__name__
+    if isinstance(t, string_type):
+        return t
     elif isinstance(t, list) and len(t) == 1:
         return '[%s]' % _constraint_to_string(t[0])
     elif isinstance(t, tuple):
@@ -209,6 +216,8 @@ def _constraint_to_string(t):
 
 def _check_constraint_validity(t):
     if isinstance(t, type):
+        return True
+    elif isinstance(t, string_type):
         return True
     elif isinstance(t, list) and len(t) == 1:
         return _check_constraint_validity(t[0])
@@ -232,6 +241,8 @@ def _verify_type_constraint(v, t):
         return True
     elif isinstance(t, type):
         return isinstance(v, t)
+    elif isinstance(t, string_type) and type(v).__name__ == t:
+        return True
     elif isinstance(t, list) and isinstance(v, list):
         return all(_verify_type_constraint(vx, t[0]) for vx in v)
     elif isinstance(t, tuple) and isinstance(v, tuple) and len(t) == len(v):

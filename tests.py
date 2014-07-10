@@ -267,15 +267,24 @@ class TestMethodAnnotation(TestCase):
             def total(self):
                 return self.sum
 
+            @returns('Accumulator')
+            @params(self='Accumulator', other='Accumulator')
+            def __add__(self, other):
+                acc = Accumulator()
+                acc.sum = self.sum + other.sum
+                return acc
+
         a = Accumulator()
 
         # should not raise anything
         Accumulator.add2(1, 2)
         a.add(1)
         self.assertEqual(a.total, 1)
+        c = a + Accumulator()
 
         self.assertRaises(TypeError, lambda: Accumulator.add2(1, 'a'))
         self.assertRaises(TypeError, lambda: a.add(None))
+        self.assertRaises(TypeError, lambda: a + 1)
 
 
 @returns(int)
