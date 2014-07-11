@@ -88,6 +88,10 @@ the types listed when creating the `Union` instance. For example,
 of the type specified when creating the `Nullable` instance, or None. For
 example, `Nullable(str)` matches strings and `None`.
 
+9. A string containing the type name. This is useful in places where the
+type is not yet available when the decorator is wrapping the function, for
+example in method definitions (where class is not yet available)
+
 These rules are recursive, so it is possible to construct arbitrarily
 complex type signatures. Here are a few examples:
 
@@ -101,6 +105,9 @@ complex type signatures. Here are a few examples:
 
 * `{str: Union(int, float)}` - dictionary mapping strings to values
     that are either integers or floating point numbers
+
+* `MyObject` - any type named *MyObject* (more precisely,
+    any type whose `__name__` attribute is equal to `MyObject`)
 
 Note that `[object]` is the same as `list`, `{object:object}` is the same
 as `dict` and `{object}` is the same as  `set`.
@@ -157,7 +164,15 @@ will enforce correct type for the instance upon method invocation anyways.
 When using `@params` on a class method, there is no problem since the class
 itself is instance of the `type` type.
 
-WHen combining type checking decorators with `@classmethod`, `@staticmethod`
+But there's still a problem if a method takes additional parameters
+that must be instances of the same class, or if it returns an instance of
+the class. In this case, and in any other case where the type might not
+be available at the time of decorator running, a string specifying the type
+name can be used instead. Using strings should be avoided in other cases,
+because they're more prone to type errors (the existence of the type is never
+checked, the check only does a name match).
+
+When combining type checking decorators with `@classmethod`, `@staticmethod`
 or `@property` decorators, the type checking decorators must run first (ie.
 be "closer" to the body of the function being defined).
 
@@ -181,6 +196,13 @@ Here's an example:
         @returns(int)
         def total(self):
             return self.sum
+
+        @returns('Accumulator')
+        @params(self=object, other='Accumulator')
+        def __add__(self, other):
+            result = Accumulator()
+            result.sum = self.sum + other.sum
+            return result
 
 ## Mocking
 
