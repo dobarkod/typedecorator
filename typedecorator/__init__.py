@@ -79,14 +79,14 @@ as `dict` and `{object}` is the same as  `set`.
 
 """
 
-__version__ = '0.0.4'
-
-__all__ = ['returns', 'void', 'params', 'setup_typecheck', 'Union',
-    'Nullable', 'typed']
-
 import inspect
 import logging
 import traceback
+
+__version__ = '0.0.5'
+
+__all__ = ['returns', 'void', 'params', 'setup_typecheck', 'Union',
+    'Nullable', 'typed']
 
 try:
     from mock import Mock
