@@ -234,6 +234,15 @@ def _check_constraint_validity(t):
         raise TypeError('Invalid type signature')
 
 
+def class_tree(obj):
+    """Return list of names of the object's class and all its parent classes.
+
+    For new-style classes, this duplicates one name, but that doesn't cause
+    problems.
+    """
+    return [obj.__class__.__name__] + [base.__name__ for base in type(obj).mro()]
+
+
 def _verify_type_constraint(v, t):
     if Mock and isinstance(v, Mock):
         return True
@@ -241,7 +250,7 @@ def _verify_type_constraint(v, t):
         return True
     elif isinstance(t, type):
         return isinstance(v, t)
-    elif isinstance(t, string_type) and type(v).__name__ == t:
+    elif isinstance(t, string_type) and t in class_tree(v):
         return True
     elif isinstance(t, list) and isinstance(v, list):
         return all(_verify_type_constraint(vx, t[0]) for vx in v)

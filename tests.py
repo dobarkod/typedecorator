@@ -29,10 +29,39 @@ class TestTypeSignatures(TestCase):
         def foo(a):
             pass
 
+        @params(a='MyType')
+        def bar(a):
+            pass
+
         # should not raise anything
         foo(MyType())
+        bar(MyType())
 
         self.assertRaises(TypeError, lambda: foo(1))
+        self.assertRaises(TypeError, lambda: bar(1))
+
+    def test_params_custom_subtype(self):
+        class MyBaseType(object):
+            pass
+
+        class MyType(MyBaseType):
+            pass
+
+        @params(a=MyBaseType)
+        def foo(a):
+            pass
+
+        @params(a='MyBaseType')
+        def bar(a):
+            pass
+
+        # should not raise anything
+        foo(MyType())
+        bar(MyType())
+
+        self.assertRaises(TypeError, lambda: foo(1))
+        self.assertRaises(TypeError, lambda: bar(1))
+
 
     def test_params_list(self):
         @params(a=[int])
